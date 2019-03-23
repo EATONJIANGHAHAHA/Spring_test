@@ -2,8 +2,6 @@ package com.eaton.ioc.demo3;
 
 public class UserDaoImpl implements UserDao {
 
-
-
     @Override
     public void findAll() {
         System.out.println("查询用户。。");

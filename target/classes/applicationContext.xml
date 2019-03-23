@@ -9,11 +9,11 @@
     http://www.springframework.org/schema/context/spring-context.xsd
 ">
 
-    <!--开启注解扫面-->
-    <context:component-scan base-package="com.eaton.annocation"/>
+<!--    &lt;!&ndash;开启注解扫面&ndash;&gt;
+    <context:component-scan base-package="com.eaton.annocation"/>-->
 
 <!--    &lt;!&ndash; 创建全交给工厂&ndash;&gt;
-    <bean id="userService" class="UserServiceImpl"/>-->
+    <bean id="userService" class="com.eaton.ioc.demo1.UserServiceImpl"/>-->
 
 <!--    &lt;!&ndash;Bean实例化的三种方式&ndash;&gt;
     &lt;!&ndash;默认无参构造器&ndash;&gt;
@@ -112,10 +112,72 @@
         </property>
     </bean>-->
 
-    <!--注解扫描和xml文件配置配合使用的依赖注入-->
-    <context:annotation-config/> <!--这是类属性注入，在没有打开包扫描的时候使用，@Controler, @Service等注解无法使用-->
+<!--    &lt;!&ndash;注解扫描和xml文件配置配合使用的依赖注入&ndash;&gt;
+    <context:annotation-config/> &lt;!&ndash;这是类属性注入，在没有打开包扫描的时候使用，@Controler, @Service等注解无法使用&ndash;&gt;
     <bean id="productService" class="com.eaton.annocation.demo3.ProductService">
     </bean>
     <bean id="productDao" class="com.eaton.annocation.demo3.ProductDao"/>
-    <bean id="categoryDao" class="com.eaton.annocation.demo3.CategoryDao"/>
+    <bean id="categoryDao" class="com.eaton.annocation.demo3.CategoryDao"/>-->
+
+<!--    &lt;!&ndash;一般切面案例&ndash;&gt;
+    &lt;!&ndash;配置目标类&ndash;&gt;
+    <bean id="studentDao" class="com.eaton.aop.demo3.StudentDaoImpl"/>
+    &lt;!&ndash;前置通知类型&ndash;&gt;
+    <bean id="myBeforeAdvice" class="com.eaton.aop.demo3.MyBeforeAdvice"/>
+    &lt;!&ndash;Sping AOP产生代理对象&ndash;&gt;
+    <bean id="studentDaoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        &lt;!&ndash;配置目标类&ndash;&gt;
+        <property name="target" ref="studentDao"/>
+        &lt;!&ndash;实现的接口&ndash;&gt;
+        <property name="proxyInterfaces" value="com.eaton.aop.demo3.StudentDao"/>
+        &lt;!&ndash;采用拦截的名称&ndash;&gt;
+        <property name="interceptorNames" value="myBeforeAdvice"/>
+    </bean>-->
+
+<!--    &lt;!&ndash;带切入点切面&ndash;&gt;
+    &lt;!&ndash;配置目标类&ndash;&gt;
+    <bean id="customerDao" class="com.eaton.aop.demo4.CustomerDao"/>
+    &lt;!&ndash;通知&ndash;&gt;
+    <bean id="myAroundAdvice" class="com.eaton.aop.demo4.MyAroundAdvice"/>
+    &lt;!&ndash;现在对目标类的某个方法进行增强，这时需要配置带有切入点的切面&ndash;&gt;
+    <bean id="myAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        &lt;!&ndash;使用切面规则的正则表达式来判断切点&ndash;&gt;
+        <property name="patterns" value=".*save.*,.*delete.*"/>
+        <property name="advice" ref="myAroundAdvice"/>
+    </bean>
+    &lt;!&ndash;配置产生代理&ndash;&gt;
+    <bean id="customerDaoProxy" class="org.springframework.aop.framework.ProxyFactoryBean">
+        <property name="target" ref="customerDao"/>
+        <property name="proxyTargetClass" value="true"/>
+        <property name="interceptorNames" value="myAdvisor"/>
+    </bean>-->
+
+<!--    &lt;!&ndash;不带切点的自动代理配置&ndash;&gt;
+    &lt;!&ndash;配置目标类&ndash;&gt;
+    <bean id="studentDao" class="com.eaton.aop.demo5.StudentDaoImpl"/>
+    <bean id="customerDao" class="com.eaton.aop.demo5.CustomerDao"/>
+    &lt;!&ndash;配置增强&ndash;&gt;
+    <bean id="myBeforeAdvice" class="com.eaton.aop.demo5.MyBeforeAdvice"/>
+    <bean id="myAroundAdvice" class="com.eaton.aop.demo5.MyAroundAdvice"/>
+    &lt;!&ndash;配置自动代理&ndash;&gt;
+    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+        <property name="beanNames" value="*Dao"/>
+        <property name="interceptorNames" value="myBeforeAdvice"/>
+    </bean>-->
+
+    <!--带切面信息的的自动代理配置-->
+    <!--配置目标类-->
+    <bean id="studentDao" class="com.eaton.aop.demo6.StudentDaoImpl"/>
+    <bean id="customerDao" class="com.eaton.aop.demo6.CustomerDao"/>
+    <!--配置增强-->
+    <bean id="myBeforeAdvice" class="com.eaton.aop.demo6.MyBeforeAdvice"/>
+    <bean id="myAroundAdvice" class="com.eaton.aop.demo6.MyAroundAdvice"/>
+    <!--配置切面-->
+    <bean id="myAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+        <property name="pattern" value="com\.eaton\.aop\.demo6\.CustomerDao\.save"/>
+        <property name="advice" ref="myAroundAdvice"/>
+    </bean>
+    <!--配置自动代理-->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
 </beans>
